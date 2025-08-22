@@ -2,20 +2,20 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   
   const supabase = createClient();
   
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    setMessage(null);
     
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -23,12 +23,13 @@ export default function ForgotPasswordForm() {
       });
       
       if (error) {
-        setError(error.message);
+        toast.error(error.message);
       } else {
-        setMessage('Password reset instructions sent to your email');
+        toast.success('Password reset instructions sent to your email');
+        setEmail(''); // Clear the form
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      toast.error('An unexpected error occurred');
       console.error(err);
     } finally {
       setLoading(false);
@@ -36,48 +37,35 @@ export default function ForgotPasswordForm() {
   };
   
   return (
-    <div className="max-w-md w-full mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Reset Password</h2>
-      
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-      
-      {message && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          {message}
-        </div>
-      )}
-      
-      <form onSubmit={handleResetPassword}>
-        <div className="mb-6">
-          <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+    <div className="bg-[var(--ds-surface)] rounded-[var(--ds-radius-xl)] border border-[var(--ds-border)] p-8">
+      <form onSubmit={handleResetPassword} className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-medium text-[var(--ds-text-primary)]">
             Email
-          </label>
-          <input
+          </Label>
+          <Input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-[var(--ds-radius-md)] border-[var(--ds-border)] bg-[var(--ds-surface-elevated)] text-[var(--ds-text-primary)] placeholder:text-[var(--ds-text-muted)] focus:border-[var(--ds-accent-purple)]"
+            placeholder="Enter your email address"
             required
           />
         </div>
         
-        <button
+        <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          className="w-full rounded-[var(--ds-radius-md)] bg-[var(--ds-accent-purple)] text-[var(--ds-on-accent)] font-semibold py-3 hover:bg-[var(--ds-accent-purple)]/90 transition-colors disabled:opacity-50"
         >
           {loading ? 'Sending instructions...' : 'Send Reset Instructions'}
-        </button>
+        </Button>
         
-        <div className="mt-4 text-center">
-          <a href="/auth/signin" className="text-blue-500 hover:underline">
-            Back to Sign In
-          </a>
+        <div className="text-center">
+          <p className="text-xs text-[var(--ds-text-muted)]">
+            We&apos;ll send you an email with a link to reset your password
+          </p>
         </div>
       </form>
     </div>
