@@ -12,8 +12,8 @@ interface LogoProps {
 
 export default function Logo({ className }: LogoProps) {
   return (
-    <div className={`${bangers.className}  text-blue-500 font-extrabold  ${className}`}>
-      GRND
+    <div className={`${bangers.className} font-extrabold  ${className}`}>
+      GRNND.
     </div>
   );
 }
