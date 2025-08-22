@@ -3,13 +3,15 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 export default function SignInForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   
   const supabase = createClient();
   const router = useRouter();
@@ -17,8 +19,6 @@ export default function SignInForm() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    setMessage(null);
     
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -27,15 +27,15 @@ export default function SignInForm() {
       });
       
       if (error) {
-        setError(error.message);
+        toast.error(error.message);
       } else {
-        setMessage('Signed in successfully!');
+        toast.success('Signed in successfully!');
         setTimeout(() => {
           router.push('/dashboard');
         }, 1000); 
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      toast.error('An unexpected error occurred');
       console.error(err);
     } finally {
       setLoading(false);
@@ -43,69 +43,45 @@ export default function SignInForm() {
   };
   
   return (
-    <div className="max-w-md w-full mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Sign In</h2>
-      
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-      
-      {message && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          {message}
-        </div>
-      )}
-      
-      <form onSubmit={handleSignIn}>
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+    <div className="bg-[var(--ds-surface)] rounded-[var(--ds-radius-xl)] border border-[var(--ds-border)] p-8">
+      <form onSubmit={handleSignIn} className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-medium text-[var(--ds-text-primary)]">
             Email
-          </label>
-          <input
+          </Label>
+          <Input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-[var(--ds-radius-md)] border-[var(--ds-border)] bg-[var(--ds-surface-elevated)] text-[var(--ds-text-primary)] placeholder:text-[var(--ds-text-muted)] focus:border-[var(--ds-accent-purple)]"
+            placeholder="Enter your email"
             required
           />
         </div>
         
-        <div className="mb-6">
-          <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
+        <div className="space-y-2">
+          <Label htmlFor="password" className="text-sm font-medium text-[var(--ds-text-primary)]">
             Password
-          </label>
-          <input
+          </Label>
+          <Input
             id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-[var(--ds-radius-md)] border-[var(--ds-border)] bg-[var(--ds-surface-elevated)] text-[var(--ds-text-primary)] placeholder:text-[var(--ds-text-muted)] focus:border-[var(--ds-accent-purple)]"
+            placeholder="Enter your password"
             required
           />
         </div>
         
-        <button
+        <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          className="w-full rounded-[var(--ds-radius-md)] bg-[var(--ds-accent-purple)] text-[var(--ds-on-accent)] font-semibold py-3 hover:bg-[var(--ds-accent-purple)]/90 transition-colors disabled:opacity-50"
         >
           {loading ? 'Signing in...' : 'Sign In'}
-        </button>
-        
-        <div className="mt-4 text-center">
-          <a href="/auth/signup" className="text-blue-500 hover:underline">
-            Don't have an account? Sign up
-          </a>
-        </div>
-        
-        <div className="mt-2 text-center">
-          <a href="/auth/forgot-password" className="text-blue-500 hover:underline">
-            Forgot your password?
-          </a>
-        </div>
+        </Button>
       </form>
     </div>
   );
