@@ -5,11 +5,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
-interface Workout {
-  _id: string;
-  date: string;
-  name: string;
-}
+import { Workout } from '@/types/workout';
 
 interface CalendarViewProps {
   workouts: Workout[];
