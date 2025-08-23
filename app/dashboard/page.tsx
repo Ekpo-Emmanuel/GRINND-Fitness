@@ -6,11 +6,10 @@ import { useAuth } from '@/app/providers';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import Link from 'next/link';
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Play, Dumbbell, Clock, Weight, LayoutPanelTop, FileText, UserRound, History } from 'lucide-react';
+import { Calendar, Play, Dumbbell, Clock, Weight } from 'lucide-react';
 
 export default function DashboardPage() {
   const router = useRouter();

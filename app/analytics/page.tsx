@@ -10,58 +10,24 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line
 } from 'recharts';
-
-interface Workout {
-  _id: string;
-  date: string;
-  name: string;
-  duration?: number;
-  totalVolume?: number;
-  exercises?: {
-    name: string;
-    muscleGroup: string;
-    sets: {
-      setNumber: number;
-      reps: number;
-      weight: number;
-      completed: boolean;
-    }[];
-    notes: string;
-  }[];
-  muscleGroups?: { 
-    id: string; 
-    name: string;
-    exercises: {
-      id: string;
-      name: string;
-      sets: {
-        id: string;
-        weight: string;
-        reps: string;
-        completed: boolean;
-      }[];
-    }[];
-  }[];
-}
+import { Workout} from '@/types/workout';
+import { formatDate } from '@/lib/utils/date';
 
 export default function AnalyticsPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('volume');
   
-  // Get user workouts from Convex
   const workouts = useQuery(api.workouts.getRecentWorkouts,
     user?.id ? { userId: user.id, limit: 100 } : 'skip'
   ) as Workout[] | undefined;
   
   useEffect(() => {
-    // Redirect if not authenticated
     if (!authLoading && !user) {
       router.push('/auth/signin');
     }
   }, [user, authLoading, router]);
   
-  // Process workout data for charts
   const processWorkoutData = () => {
     if (!workouts || workouts.length === 0) return {
       volumeData: [],
@@ -70,27 +36,19 @@ export default function AnalyticsPage() {
       progressData: []
     };
     
-    // Sort workouts by date
     const sortedWorkouts = [...workouts].sort((a, b) => 
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
     
-    // Volume data - total volume per workout over time
     const volumeData = sortedWorkouts.map(workout => ({
       date: formatDate(workout.date),
       volume: workout.totalVolume || 0
     }));
     
-    // Muscle group data - count exercises per muscle group
     const muscleGroupCounts: Record<string, number> = {};
     
     workouts.forEach(workout => {
-      if (workout.exercises) {
-        workout.exercises.forEach(exercise => {
-          const group = exercise.muscleGroup;
-          muscleGroupCounts[group] = (muscleGroupCounts[group] || 0) + 1;
-        });
-      } else if (workout.muscleGroups) {
+      if (workout.muscleGroups) {
         workout.muscleGroups.forEach(group => {
           muscleGroupCounts[group.name] = (muscleGroupCounts[group.name] || 0) + 1;
         });
@@ -102,7 +60,6 @@ export default function AnalyticsPage() {
       count
     }));
     
-    // Workout frequency data - workouts per week
     const weekMap: Record<string, number> = {};
     
     sortedWorkouts.forEach(workout => {
@@ -119,35 +76,16 @@ export default function AnalyticsPage() {
       count
     }));
     
-    // Progress data - track specific exercises
     const progressMap: Record<string, any[]> = {};
     
     sortedWorkouts.forEach(workout => {
-      if (workout.exercises) {
-        workout.exercises.forEach(exercise => {
-          if (!progressMap[exercise.name]) {
-            progressMap[exercise.name] = [];
-          }
-          
-          // Calculate 1RM estimate for this exercise
-          const maxSet = exercise.sets.reduce((max, set) => {
-            const oneRM = set.weight * (1 + set.reps / 30);
-            return oneRM > max ? oneRM : max;
-          }, 0);
-          
-          progressMap[exercise.name].push({
-            date: formatDate(workout.date),
-            estimatedMax: Math.round(maxSet)
-          });
-        });
-      } else if (workout.muscleGroups) {
+      if (workout.muscleGroups) {
         workout.muscleGroups.forEach(group => {
           group.exercises.forEach(exercise => {
             if (!progressMap[exercise.name]) {
               progressMap[exercise.name] = [];
             }
             
-            // Calculate total volume for this exercise
             let totalVolume = 0;
             exercise.sets.forEach(set => {
               if (set.completed) {
@@ -166,7 +104,6 @@ export default function AnalyticsPage() {
       }
     });
     
-    // Get top 3 exercises by frequency
     const exerciseFrequency: Record<string, number> = {};
     Object.keys(progressMap).forEach(exercise => {
       exerciseFrequency[exercise] = progressMap[exercise].length;
@@ -190,15 +127,10 @@ export default function AnalyticsPage() {
     };
   };
   
-  // Format date to readable format
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
+
   
   const { volumeData, muscleGroupData, frequencyData, progressData } = processWorkoutData();
   
-  // Colors for charts
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
   
   if (authLoading || !user) {

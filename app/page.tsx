@@ -50,9 +50,9 @@ export default function Home() {
                     className="flex flex-col items-center space-y-2 px-2  border-r border-[var(--ds-border)] transition-colors duration-200"
                   >
                     <div className="p-3 rounded-full flex items-center justify-center w-fit">
-                      <IconComponent size={44} />
+                      <IconComponent size={44}  className="text-[var(--ds-border)]" />
                     </div>
-                    <span className="text-lg tracking-tight font-medium text-[var(--ds-text-primary)]">
+                    <span className="text-lg tracking-tight font-medium text-[var(--ds-text-primary)]/50">
                       {feature.title}
                     </span>
                   </div>
@@ -64,15 +64,10 @@ export default function Home() {
             <div className="mt-12">
               <Link 
                 href="/auth/signup"
+                className="group inline-flex items-center justify-center px-8 py-4 rounded-[var(--ds-radius-full)] bg-[var(--ds-text-primary)] text-[var(--ds-bg-primary)] font-semibold text-lg transition-all duration-200"
               >
-                <Button
-                  variant="primary"
-                  className="cursor-pointer"
-                  size="xl"
-                > 
-                  Get Started Free
-                  <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
-                </Button>
+                Get Started Free
+                <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
 

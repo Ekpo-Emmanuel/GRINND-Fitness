@@ -6,32 +6,12 @@ import { useAuth } from '@/app/providers';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import CalendarView from '@/app/components/CalendarView';
-import { CalendarDays, Dumbbell, Clock } from 'lucide-react';
+import { CalendarDays } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import WorkoutHistory from './components/WorkoutHistory';
 import Analytics from './components/Analytics';
-
-interface Workout {
-  _id: string;
-  date: string;
-  name: string;
-  duration?: number;
-  totalVolume?: number;
-  muscleGroups?: {
-    id: string;
-    name: string;
-    exercises: {
-      id: string;
-      name: string;
-      sets: {
-        id: string;
-        weight: string;
-        reps: string;
-        completed: boolean;
-      }[];
-    }[];
-  }[];
-}
+import { Workout } from '@/types/workout';
+import { formatDateWithWeekday, getWeekStart } from '@/lib/utils/date';
 
 export default function ProgressPage() {
   const router = useRouter();
@@ -48,14 +28,7 @@ export default function ProgressPage() {
     }
   }, [user, authLoading, router]);
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+
 
   const processWorkoutData = () => {
     if (!workouts || workouts.length === 0) return {
@@ -69,7 +42,7 @@ export default function ProgressPage() {
     );
 
     const volumeData = sortedWorkouts.map(workout => ({
-      date: formatDate(workout.date),
+      date: formatDateWithWeekday(workout.date),
       volume: workout.totalVolume || 0
     }));
 
@@ -100,7 +73,7 @@ export default function ProgressPage() {
     });
 
     const frequencyData = Object.entries(weekMap).map(([week, count]) => ({
-      week: `Week of ${formatDate(week)}`,
+      week: `Week of ${formatDateWithWeekday(week)}`,
       count
     }));
 

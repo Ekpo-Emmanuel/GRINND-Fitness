@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/providers";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -18,84 +17,18 @@ import { Pencil, Trash, Minus, Check, Clock, Dumbbell } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Pill } from "@/components/ui/pill";
 import { toast } from "sonner";
-
-
-interface Set {
-  id: string;
-  weight: string;
-  reps: string;
-  completed: boolean;
-  type?: 'normal' | 'warmup' | 'drop' | 'failure';
-}
-
-interface Exercise {
-  id: string;
-  name: string;
-  sets: Set[];
-  notes: string;
-}
-
-interface MuscleGroup {
-  id: string;
-  name: string;
-  exercises: Exercise[];
-}
-
-interface WorkoutSetup {
-  day: string;
-  muscleGroups: string[];
-  notes: string;
-  timestamp: string;
-  startTime: number;
-  name?: string;
-  fromTemplate?: boolean;
-  templateId?: Id<'workoutTemplates'>;
-}
-
-interface SavedWorkoutProgress {
-  muscleGroups: MuscleGroup[];
-  elapsedTime: number;
-  lastSaved: number;
-  warmups?: WarmupItem[];
-  stretches?: StretchItem[];
-  cardio?: CardioItem[];
-}
-
-type WarmupInputMode = 'reps' | 'duration' | 'distance';
-
-interface WarmupSet {
-  id: string;
-  reps?: string;
-  duration?: string; 
-  distance?: string; 
-  completed: boolean;
-}
-
-interface WarmupItem {
-  id: string;
-  name: string;
-  mode: WarmupInputMode;
-  sets: WarmupSet[];
-}
-
-interface StretchItem {
-  id: string;
-  name: string;
-  target: string;
-  imageUrl?: string;
-  duration?: string; 
-  completed: boolean;
-}
-
-interface CardioItem {
-  id: string;
-  name: string;
-  distance?: string; 
-  duration?: string; 
-  pace?: string;     
-  calories?: string;
-  completed: boolean;
-}
+import { 
+  ExerciseSet as Set,
+  Exercise, 
+  MuscleGroup, 
+  WorkoutSetup, 
+  SavedWorkoutProgress,
+  WarmupInputMode,
+  WarmupSet,
+  WarmupItem,
+  StretchItem,
+  CardioItem
+} from '@/types/workout';
 
 export default function NewWorkoutPage() {
   const router = useRouter();

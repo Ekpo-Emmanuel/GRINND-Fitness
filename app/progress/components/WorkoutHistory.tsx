@@ -5,40 +5,8 @@ import { useRouter } from "next/navigation";
 import { Clock, Dumbbell, Timer, Repeat, X, Calendar, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Pill } from "@/components/ui/pill";
-
-interface Workout {
-    _id: string;
-    date: string;
-    name: string;
-    duration?: number;
-    totalVolume?: number;
-    cardio?: {
-        id: string;
-        name: string;
-        distance?: string;
-        duration?: string;
-        pace?: string;
-        calories?: string;
-        completed: boolean;
-    }[];
-    muscleGroups?: {
-        id: string;
-        name: string;
-        exercises: {
-            id: string;
-            name: string;
-            sets: {
-                id: string;
-                weight: string;
-                reps: string;
-                completed: boolean;
-            }[];
-        }[];
-    }[];
-}
-
-type SortOption = 'date-newest' | 'date-oldest' | 'volume-highest' | 'volume-lowest' | 'duration-longest' | 'duration-shortest';
-type FilterOption = 'all' | string;
+import { Workout, SortOption, FilterOption } from '@/types/workout';
+import { formatDateWithWeekday, formatTime, formatDuration } from '@/lib/utils/date';
 
 export default function WorkoutHistory({ workouts }: { workouts: Workout[] }) {
     const router = useRouter();
@@ -117,23 +85,6 @@ function WorkoutCardList({
 }) {
     const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
     
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-        });
-    };
-
-    const formatTime = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-        });
-    };
-
     const calculateTotalReps = (workout: Workout): number => {
         let reps = 0;
         workout.muscleGroups?.forEach((group) =>
@@ -171,12 +122,7 @@ function WorkoutCardList({
         }));
     };
 
-    const formatDuration = (seconds?: number): string => {
-        if (!seconds) return "0m";
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        return h > 0 ? `${h}h ${m}m` : `${m}m`;
-    };
+
 
     const calculate1RM = (weight: string, reps: string): number => {
         const weightNum = parseFloat(weight);
@@ -283,7 +229,7 @@ function WorkoutCardList({
                                         {workout.name || "Workout"}
                                     </h3>
                                 </div>
-                                <p className="text-xs text-[color:var(--ds-text-secondary)] opacity-75">{formatDate(workout.date)}</p>
+                                <p className="text-xs text-[color:var(--ds-text-secondary)] opacity-75">{formatDateWithWeekday(workout.date)}</p>
                             </div>
                         </div>
 
@@ -360,7 +306,7 @@ function WorkoutCardList({
                                         size="sm"
                                         icon={<Calendar />}
                                     >
-                                        {formatDate(selectedWorkout.date)}
+                                        {formatDateWithWeekday(selectedWorkout.date)}
                                     </Pill>
                                     <Pill
                                         variant="tertiary"
